@@ -19,8 +19,8 @@ WHERE location = 'TN' OR location = 'KY'; */
 SELECT *
 FROM data_analyst_jobs
 WHERE location = 'TN'
-AND star_rating >= 4; */
---4
+AND star_rating > 4; */
+--3
 
 /* 5. How many postings in the dataset have a review count between 500 and 1000?
 SELECT *
@@ -29,16 +29,16 @@ WHERE review_count BETWEEN 500 and 1000; */
 --151
 
 /* 6. Show the average star rating for companies in each state. The output should show the state as `state` and the average rating for the state as `avg_rating`. Which state shows the highest average rating? 
-SELECT location AS "state", AVG(star_rating) AS "avg_rating"
+SELECT location AS "state", ROUND(AVG(star_rating), 2) AS "avg_rating"
 FROM data_analyst_jobs
 GROUP BY state
-ORDER BY avg_rating DESC; */
---NE,	4.1999998090000000
+ORDER BY avg_rating DESC NULLS LAST; */
+--NE,	4.20  Tip: nulls last to place all nulls at the end of list
 
 /* 7. Select unique job titles from the data_analyst_jobs table. How many are there?
-SELECT DISTINCT title
+SELECT COUNT (DISTINCT title)
 FROM data_analyst_jobs; */
---881
+--881 Note: distint has to be in parenthesis to work right with count
 
 /* 8. How many unique job titles are there for California companies?
 SELECT DISTINCT title, location
@@ -47,11 +47,11 @@ WHERE location = 'CA'; */
 --230
 
 /* 9. Find the name of each company and its average star rating for all companies that have more than 5000 reviews across all locations. How many companies are there with more that 5000 reviews across all locations?
-SELECT company, AVG(star_rating)
+SELECT COUNT(DISTINCT company)
 FROM data_analyst_jobs
 WHERE review_count > 5000
-GROUP BY company; */
---41
+AND company IS NOT NULL; */
+--40
 
 /* 10. Add the code to order the query in #9 from highest to lowest average star rating. Which company with more than 5000 reviews across all locations in the dataset has the highest star rating? What is that rating? 
 SELECT company, AVG(star_rating)
@@ -62,17 +62,17 @@ ORDER BY avg DESC; */
 --General Motors,	4.1999998090000000
 
 /* 11. Find all the job titles that contain the word ‘Analyst’. How many different job titles are there? 
-SELECT title
+SELECT COUNT(DISTINCT title)
 FROM data_analyst_jobs
-WHERE title LIKE '%Analyst%'; */
---1636
+WHERE title ILIKE '%Analyst%'; */
+--774 NOTE: like is case sensitive, but ilike isn't
 
 /* 12.How many different job titles do not contain either the word ‘Analyst’ or the word ‘Analytics’? What word do these positions have in common? 
 SELECT title
 FROM data_analyst_jobs
-WHERE title NOT LIKE '%Analyst%'
-AND title NOT LIKE '%Analytics%'; */
---39, "DATA ANALYST" in upper case
+WHERE title NOT ILIKE '%Analyst%'
+AND title NOT ILIKE '%Analytics%'; */
+--4, Tableau
 
 /* **BONUS:**
 You want to understand which jobs requiring SQL are hard to fill. Find the number of jobs by industry (domain) that require SQL and have been posted longer than 3 weeks. 
@@ -81,7 +81,7 @@ You want to understand which jobs requiring SQL are hard to fill. Find the numbe
   - Which three industries are in the top 4 on this list? How many jobs have been listed for more than 3 weeks for each of the top 4? */
 
 
-SELECT COUNT(skill) AS total_jobs, domain, AVG(days_since_posting)
+SELECT COUNT(skill) AS total_jobs, domain, ROUND(AVG(days_since_posting), 2)
 FROM data_analyst_jobs
 WHERE domain IS NOT NULL
 AND skill LIKE '%SQL%'
